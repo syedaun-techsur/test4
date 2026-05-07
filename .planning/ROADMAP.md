@@ -27,7 +27,13 @@
   3. User can click a checkbox/toggle on any task to mark it complete, and completed tasks display with strikethrough styling
   4. User can click delete on any task and it is immediately removed from the list
   5. Empty text submission is rejected with an inline validation error message
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — TDD: taskStore.js in-memory store with validation (RED→GREEN→REFACTOR)
+- [ ] 01-02-PLAN.md — index.html app shell + styles.css with completion/error/empty state styling
+- [ ] 01-03-PLAN.md — ui.js rendering module + full event binding (Add/Toggle/Delete/Error)
+- [ ] 01-04-PLAN.md — main.js bootstrap + Playwright E2E tests for all 5 Phase 1 success criteria
 
 ### Phase 2: Persistence & Accessibility
 
@@ -47,7 +53,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Task Loop | 0/? | Not started | - |
+| 1. Core Task Loop | 0/4 | Not started | - |
 | 2. Persistence & Accessibility | 0/? | Not started | - |
 
 ---
