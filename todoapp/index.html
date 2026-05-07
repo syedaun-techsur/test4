@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; object-src 'none';">
+  <title>TodoApp</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="storage-notice" class="storage-notice hidden" role="status" aria-live="polite"></div>
+
+  <main class="app-container">
+    <h1>My Tasks</h1>
+
+    <section class="add-task-section" aria-label="Add new task">
+      <div class="input-row">
+        <input
+          type="text"
+          id="task-input"
+          name="task-input"
+          placeholder="Add a new task..."
+          maxlength="500"
+          autofocus
+          autocomplete="off"
+          aria-label="New task description"
+          aria-describedby="error-msg"
+        >
+        <button type="button" id="add-btn">Add</button>
+      </div>
+      <p id="error-msg" class="error-msg hidden" role="alert" aria-live="assertive"></p>
+    </section>
+
+    <section class="task-list-section" aria-label="Task list">
+      <ul id="task-list" aria-live="polite" aria-label="Tasks"></ul>
+    </section>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
