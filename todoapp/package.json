@@ -1,0 +1,15 @@
+{
+  "name": "todoapp",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test:unit": "node --test js/taskStore.test.js",
+    "test:e2e": "npx playwright test",
+    "test": "npm run test:unit && npm run test:e2e",
+    "serve": "npx serve . -p 3000"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "serve": "^14.2.6"
+  }
+}
