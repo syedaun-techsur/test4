@@ -3,19 +3,19 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-05-07T18:22:28.631Z"
+last_updated: "2026-05-07T18:25:33.096Z"
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
   percent: 25
 ---
 
 # Project State: Basic To-Do App
 
 **Last updated:** 2026-05-07
-**Session:** Completed 01-core-task-loop-01-PLAN.md (taskStore TDD)
+**Session:** Completed 01-02-PLAN.md (HTML app shell + CSS stylesheet)
 
 ---
 
@@ -32,12 +32,12 @@ progress:
 |-------|-------|
 | Milestone | v1 |
 | Current Phase | 1 — Core Task Loop |
-| Current Plan | Plan 02 (next) |
+| Current Plan | Plan 03 (next) |
 | Phase Status | In progress |
-| Overall Progress | 1/4 plans complete |
+| Overall Progress | 2/4 plans complete |
 
 ```
-Progress: [███░░░░░░░] 25%
+Progress: [█████░░░░░] 50%
 ```
 
 ---
@@ -46,7 +46,7 @@ Progress: [███░░░░░░░] 25%
 
 | Phase | Status | Plans | Completed |
 |-------|--------|-------|-----------|
-| 1 — Core Task Loop | In progress | 4 | 1 |
+| 1 — Core Task Loop | In progress | 4 | 2 |
 | 2 — Persistence & Accessibility | Not started | TBD | - |
 
 ---
@@ -59,13 +59,14 @@ Progress: [███░░░░░░░] 25%
 | Requirements mapped | 6/6 ✓ |
 | Phases created | 2 |
 | Plans created | 4 |
-| Plans complete | 1 |
+| Plans complete | 2 |
 
 ### Execution History
 
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01-core-task-loop P01 | 2min | 3 tasks | 2 files |
+| Phase 01-core-task-loop P02 | 1min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Progress: [███░░░░░░░] 25%
 | Used Node built-in test runner (node:test) | No Jest install needed with Node 25.6.0 available |
 | Phase 1 in-memory only | Phase 2 comment markers at all suppressed localStorage write points |
 | Inline export keyword pattern | Avoids ES module duplicate export errors in taskStore.js |
+| CSS .hidden class pattern | Toggle visibility via classList, not inline styles — clean JS/CSS separation |
+| CSS variables in :root | Consistent theming; primary/danger/muted/warning colors defined once |
 
 ### Tech Constraints (from TechArch)
 
@@ -89,7 +92,7 @@ Progress: [███░░░░░░░] 25%
 
 ### Todos
 
-- Execute Plan 02 (UI module — todoapp/js/ui.js)
+- Execute Plan 03 (UI module — todoapp/js/ui.js)
 
 ### Blockers
 
