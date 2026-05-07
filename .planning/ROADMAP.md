@@ -18,7 +18,7 @@
 
 ### Phase 1: Core Task Loop
 
-**Status**: In Progress
+**Status**: executing
 **Goal**: Users can perform the full capture-and-completion loop — add a task, see it in the list, mark it done, and delete it
 **Depends on**: Nothing (first phase)
 **Requirements**: TASK-01, TASK-02, TASK-03, TASK-04
