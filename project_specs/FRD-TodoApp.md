@@ -9,20 +9,20 @@
 
 ## Scope
 
-This Functional Requirements Document specifies the exact behavior of all four v1 features of the TodoApp: Add Task (F00), View Task List (F01), Mark Task Complete (F02), and Delete Task (F03). TodoApp is a fully client-side, single-user task management application with no backend, no authentication, and no network dependency. All persistence is achieved via the browser's `localStorage` API.
+This Functional Requirements Document specifies the exact behavior of all four v1 features of the TodoApp: Add Task (F0), View Task List (F1), Mark Task Complete (F2), and Delete Task (F3). TodoApp is a fully client-side, single-user task management application with no backend, no authentication, and no network dependency. All persistence is achieved via the browser's `localStorage` API.
 
-This document is the authoritative reference for implementation. Every input, output, validation rule, error state, data structure, and module interface is defined here. No feature outside F00–F03 is in scope for v1.
+This document is the authoritative reference for implementation. Every input, output, validation rule, error state, data structure, and module interface is defined here. No feature outside F0–F3 is in scope for v1.
 
 ---
 
 ## Conventions
 
-- **Feature IDs** follow the format `F{nn}` (zero-padded), matching PRD feature numbers.
+- **Feature IDs** follow the format `F{n}` (single-digit), matching PRD feature numbers.
 - **Field names** are written in `monospace` and correspond exactly to keys used in code and localStorage.
 - **Required** / **Optional** markers appear in the Inputs section of each feature.
 - **Error codes** are `SCREAMING_SNAKE_CASE` strings surfaced to the UI as human-readable messages.
 - **Process steps** are numbered and must be executed in order unless branching is indicated.
-- Cross-references use the format `see F01 §Process` or `see Y0-schema.md §Task`.
+- Cross-references use the format `see F1 §Process` or `see §Y0 §Task` (sections within this document).
 - All timestamps are ISO 8601 strings (`YYYY-MM-DDTHH:mm:ss.sssZ`) generated client-side via `new Date().toISOString()`.
 - **"Persist"** always means writing the current task list to `localStorage` under the key `todoapp_tasks`.
 
@@ -30,17 +30,17 @@ This document is the authoritative reference for implementation. Every input, ou
 
 ## Table of Contents
 
-| Chunk File | Contents |
-|------------|----------|
-| `00-header.md` | This file — title, scope, conventions, TOC, shared terminology |
-| `F00-add-task.md` | F00: Add Task |
-| `F01-view-task-list.md` | F01: View Task List |
-| `F02-mark-task-complete.md` | F02: Mark Task Complete |
-| `F03-delete-task.md` | F03: Delete Task |
-| `Y0-schema.md` | Data schema (localStorage structure, Task object) |
-| `Y1-api.md` | Client-side module interface (JavaScript function signatures) |
-| `Y2-errors.md` | Cross-feature error catalog |
-| `Y3-integrations.md` | External integration points (localStorage, browser APIs) |
+| Section | Contents |
+|---------|----------|
+| Header | This section — title, scope, conventions, shared terminology |
+| F0 | Add Task |
+| F1 | View Task List |
+| F2 | Mark Task Complete |
+| F3 | Delete Task |
+| Y0 | Data schema (localStorage structure, Task object) |
+| Y1 | Client-side module interface (JavaScript function signatures) |
+| Y2 | Cross-feature error catalog |
+| Y3 | External integration points (localStorage, browser APIs) |
 
 ---
 
@@ -60,11 +60,11 @@ This document is the authoritative reference for implementation. Every input, ou
 
 ---
 
-*End of header — continue reading feature chunks F00 through F03, then cross-feature chunks Y0–Y3.*
+*End of header — continue reading feature sections F0 through F3, then cross-feature sections Y0–Y3.*
 
 ---
 
-## F00: Add Task
+## F0: Add Task
 
 **Description:** This feature allows a user to create a new task by typing a text description and submitting it. On successful submission the task is immediately inserted into the task list, persisted to `localStorage`, and rendered in the UI. This is the primary capture action and the entry point for every user workflow in TodoApp.
 
@@ -81,6 +81,7 @@ This document is the authoritative reference for implementation. Every input, ou
 
 ### Sub-features
 
+- Input field is auto-focused on page load — no click required before typing
 - Text input field for capturing task description
 - Submit via "Add" button click
 - Submit via Enter key press on the input field
@@ -93,21 +94,28 @@ This document is the authoritative reference for implementation. Every input, ou
 
 ### Process
 
+#### On Page Load
+
+0. System sets focus to the Input Field automatically (`autofocus` attribute or `element.focus()` call on `DOMContentLoaded`). No user click is required before typing.
+
+#### On Submission
+
 1. User types a task description into the Input Field.
 2. User triggers a Submission (button click or Enter key).
 3. System reads the value from the Input Field.
 4. System applies `.trim()` to the value → `trimmedText`.
 5. **Validation branch:**
    - If `trimmedText` is empty string (`""`): system displays an inline validation error (see Error States), clears the input field, sets focus back to the input field, and **halts** — no task is created.
-   - If `trimmedText` is non-empty: continue to step 6.
-6. System generates a new `taskId` (unique string — see Y0-schema.md §Task).
+   - If `trimmedText.length > 500`: system displays an inline validation error `TASK_TEXT_TOO_LONG` (see Error States), preserves the input field text so the user can edit it, sets focus to the input field, and **halts** — no task is created.
+   - If `trimmedText` is non-empty and ≤ 500 characters: continue to step 6.
+6. System generates a new `taskId` (unique string — see §Y0 §ID Generation).
 7. System creates a new Task object:
    ```
    { id: taskId, text: trimmedText, completed: false, createdAt: <ISO8601 timestamp> }
    ```
 8. System **prepends** the new Task to the in-memory task list array (index 0 = newest).
-9. System persists the updated task list to `localStorage` (see Y0-schema.md §Persistence).
-10. System triggers a UI Render to reflect the updated list (see F01 §Process).
+9. System persists the updated task list to `localStorage` (see §Y0 §Persistence).
+10. System triggers a UI Render to reflect the updated list (see F1 §Process).
 11. System clears the Input Field value to `""`.
 12. System sets focus to the Input Field.
 
@@ -128,11 +136,12 @@ This document is the authoritative reference for implementation. Every input, ou
 
 ### Outputs
 
+- **Input field auto-focused** on page load (before any user interaction).
 - **New Task object** inserted at index 0 of the in-memory task list.
 - **Updated localStorage** entry `todoapp_tasks` containing the new task.
-- **Rendered task item** appearing at the top of the visible task list (see F01).
+- **Rendered task item** appearing at the top of the visible task list (see F1).
 - **Cleared input field** (`value = ""`).
-- **Focus restored** to the input field.
+- **Focus restored** to the input field after submission.
 
 ---
 
@@ -150,14 +159,14 @@ This document is the authoritative reference for implementation. Every input, ou
 | Scenario | Trigger | Error Code | UI Behavior |
 |----------|---------|------------|-------------|
 | Empty submission | `trimmedText === ""` | `EMPTY_TASK_TEXT` | Show inline message: *"Task description cannot be empty."* below/near the input field. Input is cleared and focused. No task created. |
-| Text too long | `trimmedText.length > 500` | `TASK_TEXT_TOO_LONG` | Show inline message: *"Task description must be 500 characters or fewer."* No task created. |
-| localStorage write failure | `localStorage.setItem` throws | `STORAGE_WRITE_FAILED` | Task is still shown in-memory/UI for the current session. Show a non-blocking notice: *"Your task was added but could not be saved. It will be lost on page refresh."* See Y2-errors.md for full storage failure handling. |
+| Text too long | `trimmedText.length > 500` | `TASK_TEXT_TOO_LONG` | Show inline message: *"Task description must be 500 characters or fewer."* Input text is preserved (not cleared) so the user can edit it down. Focus set to input field. No task created. |
+| localStorage write failure | `localStorage.setItem` throws | `STORAGE_WRITE_FAILED` | Task is still shown in-memory/UI for the current session. Show a non-blocking notice: *"Your changes could not be saved. They will be lost on page refresh."* See §Y2 for full storage failure handling. |
 
 ---
 
 ### API Surface (this feature)
 
-See `Y1-api.md §addTask` for the full JavaScript function signature, parameters, return value, and thrown errors.
+See §Y1 §addTask for the full JavaScript function signature, parameters, return value, and thrown errors.
 
 **Summary:**
 - `addTask(text: string): Task` — validates, creates, persists, and returns the new Task object.
@@ -169,13 +178,13 @@ See `Y1-api.md §addTask` for the full JavaScript function signature, parameters
 ### Schema Surface (this feature)
 
 Uses the `Task` object and the `todoapp_tasks` localStorage key.
-See `Y0-schema.md §Task` and `Y0-schema.md §Persistence` for full structure.
+See §Y0 §Task and §Y0 §Persistence for full structure.
 
 **Task fields created by this feature:** `id`, `text`, `completed` (always `false` on creation), `createdAt`.
 
 ---
 
-## F01: View Task List
+## F1: View Task List
 
 **Description:** This feature renders the full task list in the UI, making all tasks visible to the user at all times. The list is the central surface of the application — it is displayed on initial page load (hydrated from `localStorage`), updated after every mutating operation (add, complete, delete), and clearly distinguishes completed from incomplete tasks. When no tasks exist, a friendly empty state message is shown instead.
 
@@ -186,7 +195,7 @@ See `Y0-schema.md §Task` and `Y0-schema.md §Persistence` for full structure.
 - **Task List Container** — The DOM element (e.g., `<ul>` or `<ol>`) that holds all rendered task items.
 - **Task Item** — A single DOM element (e.g., `<li>`) representing one Task object.
 - **Empty State** — The UI displayed when the task list array contains zero items.
-- **Hydration** — Loading the task list from `localStorage` into in-memory state on page load (see Y3-integrations.md §localStorage).
+- **Hydration** — Loading the task list from `localStorage` into in-memory state on page load (see §Y3 §localStorage API).
 - **Re-render** — Clearing and re-drawing the Task List Container to reflect current in-memory state. Triggered after every mutation.
 - **Completion Indicator** — Visual cue on a Task Item showing whether the task is complete (e.g., checkbox checked, strikethrough text, muted color).
 
@@ -196,8 +205,8 @@ See `Y0-schema.md §Task` and `Y0-schema.md §Persistence` for full structure.
 
 - Display all tasks in a scrollable list
 - Show task description text for each item
-- Show a completion toggle/checkbox per task (see F02)
-- Show a delete control per task (see F03)
+- Show a completion toggle/checkbox per task (see F2)
+- Show a delete control per task (see F3)
 - Visually distinguish completed tasks (strikethrough text + muted/gray color)
 - List is ordered newest-first (most recently added task at the top)
 - List persists across page refreshes via `localStorage` hydration
@@ -222,14 +231,14 @@ See `Y0-schema.md §Task` and `Y0-schema.md §Persistence` for full structure.
 1. System reads the current in-memory task list array.
 2. System clears the Task List Container (removes all child DOM nodes).
 3. **Branch:**
-   - If task list array is empty: insert the Empty State message element into the Task List Container. Halt render.
+   - If task list array is empty: insert the Empty State message element — text content must be exactly *"No tasks yet. Add one above!"* — into the Task List Container. Halt render.
    - If task list array is non-empty: continue to step 4.
 4. For each Task in the array (index 0 first = newest at top):
    a. Create a Task Item element.
    b. Render the completion toggle/checkbox (checked if `task.completed === true`).
    c. Render the task description text (`task.text`). Apply strikethrough + muted styling if `task.completed === true`.
    d. Render the delete button/control.
-   e. Attach event listeners for the toggle (→ F02) and delete (→ F03) controls.
+   e. Attach event listeners for the toggle (→ F2) and delete (→ F3) controls.
    f. Append the Task Item to the Task List Container.
 5. Render is complete.
 
@@ -251,7 +260,7 @@ See `Y0-schema.md §Task` and `Y0-schema.md §Persistence` for full structure.
 - **Visual:** Each Task Item shows text, a completion toggle reflecting `completed` state, and a delete control.
 - **Visual:** Completed tasks have strikethrough text and muted/gray color.
 - **Visual:** Incomplete tasks have normal text styling.
-- **Visual:** Empty State message (e.g., *"No tasks yet. Add one above!"*) when list is empty.
+- **Visual:** Empty State message — exactly *"No tasks yet. Add one above!"* — displayed when list is empty.
 
 ---
 
@@ -278,7 +287,7 @@ See `Y0-schema.md §Task` and `Y0-schema.md §Persistence` for full structure.
 
 ### API Surface (this feature)
 
-See `Y1-api.md §getTasks` and `Y1-api.md §renderTaskList` for full signatures.
+See §Y1 §getTasks and §Y1 §renderTaskList for full signatures.
 
 **Summary:**
 - `getTasks(): Task[]` — returns the current in-memory task list array.
@@ -290,13 +299,13 @@ See `Y1-api.md §getTasks` and `Y1-api.md §renderTaskList` for full signatures.
 ### Schema Surface (this feature)
 
 Reads the full `Task[]` array from `localStorage` key `todoapp_tasks`.
-See `Y0-schema.md §Task` and `Y0-schema.md §Persistence`.
+See §Y0 §Task and §Y0 §Persistence.
 
 **Task fields consumed by this feature:** `id`, `text`, `completed`, `createdAt` (ordering reference).
 
 ---
 
-## F02: Mark Task Complete
+## F2: Mark Task Complete
 
 **Description:** This feature allows the user to toggle the completion state of any task between incomplete and complete. When a task is marked complete it receives an immediate visual change (strikethrough text, muted color, checked checkbox) and the updated state is persisted to `localStorage`. The toggle is bidirectional: a completed task can be toggled back to incomplete, providing an undo-completion capability without a separate undo action.
 
@@ -313,7 +322,7 @@ See `Y0-schema.md §Task` and `Y0-schema.md §Persistence`.
 
 ### Sub-features
 
-- Checkbox/toggle control rendered per Task Item (see F01 §Render)
+- Checkbox/toggle control rendered per Task Item (see F1 §Render)
 - Single click/activation flips `completed` state
 - Immediate visual update on toggle (< 100ms)
 - Completed state persisted to `localStorage` after every toggle
@@ -330,7 +339,7 @@ See `Y0-schema.md §Task` and `Y0-schema.md §Persistence`.
 4. **Not-found branch:** If no Task with the given `id` exists in the array (should not occur in normal use), log a console error and halt — no state change, no render. See Error States.
 5. System flips the `completed` field: `task.completed = !task.completed`.
 6. System persists the updated task list to `localStorage`.
-7. System triggers a UI Re-render (see F01 §Render §Re-render) to reflect the new state.
+7. System triggers a UI Re-render (see F1 §Render) to reflect the new state.
 8. The Task Item for the toggled task now shows the updated completion visual (strikethrough + muted if completed; normal if incomplete).
 
 ---
@@ -355,7 +364,7 @@ See `Y0-schema.md §Task` and `Y0-schema.md §Persistence`.
 
 ### Validation Rules
 
-- The `taskId` derived from the DOM must match exactly one Task in the in-memory array. (Enforced by the event listener setup in F01 §Render; `data-id` is set to `task.id` at render time.)
+- The `taskId` derived from the DOM must match exactly one Task in the in-memory array. (Enforced by the event listener setup in F1 §Render; `data-id` is set to `task.id` at render time.)
 - No field other than `completed` is modified by this action. `id`, `text`, and `createdAt` remain unchanged.
 - The toggle must be idempotent per activation: one click = one state flip. Double-click must not silently cancel itself (each click is processed independently).
 - Completed tasks remain visible in the list — they are not hidden or moved (v1 has no filtering).
@@ -367,13 +376,13 @@ See `Y0-schema.md §Task` and `Y0-schema.md §Persistence`.
 | Scenario | Trigger | Error Code | UI Behavior |
 |----------|---------|------------|-------------|
 | Task ID not found | Toggle event fires for an `id` not in in-memory array | `TASK_NOT_FOUND` | Log `console.error`; no state change; no re-render. UI remains as-is. (Should not occur in normal operation.) |
-| localStorage write failure on toggle | `localStorage.setItem` throws during persist | `STORAGE_WRITE_FAILED` | In-memory state and UI are updated (toggle visually works for the session). Show non-blocking notice: *"Changes could not be saved. They will be lost on page refresh."* See Y2-errors.md. |
+| localStorage write failure on toggle | `localStorage.setItem` throws during persist | `STORAGE_WRITE_FAILED` | In-memory state and UI are updated (toggle visually works for the session). Show non-blocking notice: *"Your changes could not be saved. They will be lost on page refresh."* See §Y2. |
 
 ---
 
 ### API Surface (this feature)
 
-See `Y1-api.md §toggleTaskComplete` for the full function signature.
+See §Y1 §toggleTaskComplete for the full function signature.
 
 **Summary:**
 - `toggleTaskComplete(taskId: string): Task` — finds the task by ID, flips `completed`, persists, and returns the updated Task object.
@@ -385,13 +394,13 @@ See `Y1-api.md §toggleTaskComplete` for the full function signature.
 ### Schema Surface (this feature)
 
 Mutates the `completed` field of an existing Task object in the `todoapp_tasks` localStorage array.
-See `Y0-schema.md §Task`.
+See §Y0 §Task.
 
 **Task field mutated by this feature:** `completed` only.
 
 ---
 
-## F03: Delete Task
+## F3: Delete Task
 
 **Description:** This feature allows the user to permanently remove any task from the list. Deletion is immediate — the task disappears from the UI the moment the delete control is activated and is simultaneously removed from `localStorage`. There is no confirmation dialog (v1 keeps it simple). A deleted task cannot be recovered within the application.
 
@@ -411,7 +420,7 @@ See `Y0-schema.md §Task`.
 - No confirmation dialog (v1 design decision — see PRD §9 out-of-scope)
 - Task removed from UI immediately (< 100ms)
 - Task removed from `localStorage` on deletion
-- After deletion, if the task list becomes empty, the Empty State message is shown (see F01 §Render)
+- After deletion, if the task list becomes empty, the Empty State message is shown (see F1 §Render)
 - Keyboard accessible: delete button focusable and activatable via Enter/Space
 
 ---
@@ -424,10 +433,10 @@ See `Y0-schema.md §Task`.
 4. **Not-found branch:** If no Task with the given `id` exists in the array, log a console error and halt — no state change. See Error States.
 5. System removes the Task object from the in-memory task list array (filter out the matching `id`).
 6. System persists the updated (smaller) task list to `localStorage`.
-7. System triggers a UI Re-render (see F01 §Render §Re-render) to reflect the removed task.
+7. System triggers a UI Re-render (see F1 §Render) to reflect the removed task.
 8. **Post-deletion branch:**
-   - If the task list is now empty: the Empty State message is displayed (see F01 §Sub-features).
-   - If the task list is non-empty: the remaining tasks are displayed normally.
+   - If the task list is now empty: the Empty State message is displayed (see F1 §Sub-features); system sets focus to the Input Field.
+   - If the task list is non-empty: the remaining tasks are displayed normally; system sets focus to the next Task Item in the list (the one that now occupies the same visual position as the deleted task, i.e., the task that was immediately below it). If the deleted task was the last item in the list, focus moves to the Input Field.
 
 ---
 
@@ -445,14 +454,15 @@ See `Y0-schema.md §Task`.
 - **localStorage:** Updated `todoapp_tasks` JSON written without the deleted task.
 - **DOM:** Task Item element for the deleted task removed from the Task List Container. Remaining tasks rendered unchanged.
 - **DOM (if now empty):** Empty State message displayed in Task List Container.
+- **Focus:** Moved to the next Task Item in the list (the item that was immediately below the deleted one). If the deleted task was the last in the list (or the list is now empty), focus moves to the Input Field.
 
 ---
 
 ### Validation Rules
 
-- The `taskId` derived from the DOM must identify exactly one Task in the in-memory array. (Duplicate IDs are prevented at creation time; see F00 §Validation.)
+- The `taskId` derived from the DOM must identify exactly one Task in the in-memory array. (Duplicate IDs are prevented at creation time; see F0 §Validation.)
 - Deletion is permanent and irrecoverable within the app — no soft-delete, undo queue, or trash bin.
-- Deleting the last task in the list must not crash the app; it must render the Empty State (see F01 §Process §Render).
+- Deleting the last task in the list must not crash the app; it must render the Empty State (see F1 §Process §Render).
 - Both completed and incomplete tasks can be deleted — there is no restriction on deletion by completion state.
 
 ---
@@ -462,13 +472,13 @@ See `Y0-schema.md §Task`.
 | Scenario | Trigger | Error Code | UI Behavior |
 |----------|---------|------------|-------------|
 | Task ID not found | Delete event fires for an `id` not in in-memory array | `TASK_NOT_FOUND` | Log `console.error`; no state change; no re-render. UI remains as-is. (Should not occur in normal operation.) |
-| localStorage write failure on delete | `localStorage.setItem` throws during persist | `STORAGE_WRITE_FAILED` | In-memory state and UI are updated (task visually removed for the session). Show non-blocking notice: *"Changes could not be saved. The deleted task may reappear on page refresh."* See Y2-errors.md. |
+| localStorage write failure on delete | `localStorage.setItem` throws during persist | `STORAGE_WRITE_FAILED` | In-memory state and UI are updated (task visually removed for the session). Show non-blocking notice: *"Your changes could not be saved. They will be lost on page refresh."* See §Y2. |
 
 ---
 
 ### API Surface (this feature)
 
-See `Y1-api.md §deleteTask` for the full function signature.
+See §Y1 §deleteTask for the full function signature.
 
 **Summary:**
 - `deleteTask(taskId: string): void` — finds the task by ID, removes it from the array, persists, and returns nothing.
@@ -480,7 +490,7 @@ See `Y1-api.md §deleteTask` for the full function signature.
 ### Schema Surface (this feature)
 
 Removes one Task object from the `todoapp_tasks` localStorage array.
-See `Y0-schema.md §Task` and `Y0-schema.md §Persistence`.
+See §Y0 §Task and §Y0 §Persistence.
 
 **Task fields affected:** entire Task object deleted from array; no individual field mutations.
 
@@ -511,10 +521,10 @@ interface Task {
 
 | Field | Type | Required | Immutable? | Constraints | Set By |
 |-------|------|----------|------------|-------------|--------|
-| `id` | string | Yes | Yes (after creation) | Unique within the list; non-empty; URL-safe characters recommended | F00 §Process step 6 |
-| `text` | string | Yes | No (future v2+; read-only in v1) | 1–500 characters after trim; no newlines | F00 §Process step 7 |
-| `completed` | boolean | Yes | No | `true` or `false`; default `false` on creation | F00 (created), F02 (mutated) |
-| `createdAt` | string | Yes | Yes (after creation) | Valid ISO 8601 datetime string; set at creation; never updated | F00 §Process step 7 |
+| `id` | string | Yes | Yes (after creation) | Unique within the list; non-empty; URL-safe characters recommended | F0 §Process step 6 |
+| `text` | string | Yes | No (future v2+; read-only in v1) | 1–500 characters after trim; no newlines | F0 §Process step 7 |
+| `completed` | boolean | Yes | No | `true` or `false`; default `false` on creation | F0 (created), F2 (mutated) |
+| `createdAt` | string | Yes | Yes (after creation) | Valid ISO 8601 datetime string; set at creation; never updated | F0 §Process step 7 |
 
 ---
 
@@ -551,7 +561,7 @@ function generateId() {
 Every mutating operation (add, toggle complete, delete) must:
 1. Update the in-memory task list array.
 2. Call `localStorage.setItem("todoapp_tasks", JSON.stringify(taskList))`.
-3. If `setItem` throws (e.g., `QuotaExceededError`): surface `STORAGE_WRITE_FAILED` error (see Y2-errors.md); continue with in-memory state intact.
+3. If `setItem` throws (e.g., `QuotaExceededError`): surface `STORAGE_WRITE_FAILED` error (see §Y2); continue with in-memory state intact.
 
 #### Read Contract
 
@@ -560,7 +570,7 @@ On page load only:
 2. If result is `null`: initialize task list as `[]`.
 3. If result is a non-null string: call `JSON.parse(result)`.
    - If parse succeeds and result is an array: use as task list.
-   - If parse fails or result is not an array: initialize task list as `[]`; call `localStorage.removeItem("todoapp_tasks")`; surface `STORAGE_PARSE_FAILED` notice (see Y2-errors.md).
+   - If parse fails or result is not an array: initialize task list as `[]`; call `localStorage.removeItem("todoapp_tasks")`; surface `STORAGE_PARSE_FAILED` notice (see §Y2).
 4. Validate each parsed object has at minimum `id` (string), `text` (string), `completed` (boolean). Skip any object that fails validation (log warning; surface `MALFORMED_TASK_SKIPPED`).
 
 ---
@@ -702,7 +712,7 @@ getTasks(): Task[]
 addTask(text: string): Task
 ```
 
-**Description:** Validates the input, creates a new Task, prepends it to the in-memory list, persists to localStorage, and returns the new Task. Called by F00.
+**Description:** Validates the input, creates a new Task, prepends it to the in-memory list, persists to localStorage, and returns the new Task. Called by F0.
 
 **Parameters:**
 
@@ -737,7 +747,7 @@ const task = addTask("Buy groceries");
 toggleTaskComplete(taskId: string): Task
 ```
 
-**Description:** Finds the task by ID, flips its `completed` field, persists to localStorage, and returns the updated Task. Called by F02.
+**Description:** Finds the task by ID, flips its `completed` field, persists to localStorage, and returns the updated Task. Called by F2.
 
 **Parameters:**
 
@@ -765,7 +775,7 @@ toggleTaskComplete(taskId: string): Task
 deleteTask(taskId: string): void
 ```
 
-**Description:** Finds the task by ID, removes it from the in-memory list, persists to localStorage. Called by F03.
+**Description:** Finds the task by ID, removes it from the in-memory list, persists to localStorage. Called by F3.
 
 **Parameters:**
 
@@ -793,7 +803,7 @@ deleteTask(taskId: string): void
 renderTaskList(tasks: Task[]): void
 ```
 
-**Description:** Pure UI function. Clears the Task List Container DOM element and re-renders it from the provided task array. Attaches event listeners for toggle (F02) and delete (F03) controls. Called after every mutation and on page load. Defined in the UI layer, not the store.
+**Description:** Pure UI function. Clears the Task List Container DOM element and re-renders it from the provided task array. Attaches event listeners for toggle (F2) and delete (F3) controls. Called after every mutation and on page load. Defined in the UI layer, not the store.
 
 **Parameters:**
 
@@ -853,13 +863,13 @@ renderTaskList(getTasks());
 
 | Error Code | Class | Feature(s) | Trigger | User-Facing Message | Console Level | Recovery Action |
 |------------|-------|------------|---------|--------------------|--------------------|-----------------|
-| `EMPTY_TASK_TEXT` | Validation | F00 | `trimmedText === ""` on submission | *"Task description cannot be empty."* | — | Show inline error; clear & focus input; do not create task |
-| `TASK_TEXT_TOO_LONG` | Validation | F00 | `trimmedText.length > 500` | *"Task description must be 500 characters or fewer."* | — | Show inline error; do not create task |
-| `STORAGE_WRITE_FAILED` | Storage | F00, F02, F03 | `localStorage.setItem` throws (e.g., `QuotaExceededError`, security error) | *"Your changes could not be saved. They will be lost on page refresh."* | `console.warn` | Proceed with in-memory state; show persistent non-blocking banner until page reload |
-| `STORAGE_UNAVAILABLE` | Storage | F01 (page load) | `localStorage` access itself throws on page load | *"Storage is unavailable. Tasks will not be saved across sessions."* | `console.warn` | Initialize empty in-memory list; show persistent banner; app functions in-session only |
-| `STORAGE_PARSE_FAILED` | Storage | F01 (page load) | `JSON.parse` throws on stored value, or parsed value is not an array | *"Previous tasks could not be loaded. Starting fresh."* | `console.warn` | Initialize `taskList = []`; call `localStorage.removeItem("todoapp_tasks")` |
-| `TASK_NOT_FOUND` | Internal | F02, F03 | Toggle or delete event fires for a `taskId` not in `taskList` | None (silent to user) | `console.error` | No state change; no re-render; task list unaffected |
-| `MALFORMED_TASK_SKIPPED` | Internal | F01 (page load) | Parsed task object missing `id`, `text`, or `completed` field | None (silent to user) | `console.warn` | Skip the malformed object; continue with valid tasks |
+| `EMPTY_TASK_TEXT` | Validation | F0 | `trimmedText === ""` on submission | *"Task description cannot be empty."* | — | Show inline error; clear & focus input; do not create task |
+| `TASK_TEXT_TOO_LONG` | Validation | F0 | `trimmedText.length > 500` | *"Task description must be 500 characters or fewer."* | — | Show inline error; preserve input text; focus input; do not create task |
+| `STORAGE_WRITE_FAILED` | Storage | F0, F2, F3 | `localStorage.setItem` throws (e.g., `QuotaExceededError`, security error) | *"Your changes could not be saved. They will be lost on page refresh."* | `console.warn` | Proceed with in-memory state; show persistent non-blocking banner until page reload |
+| `STORAGE_UNAVAILABLE` | Storage | F1 (page load) | `localStorage` access itself throws on page load | *"Storage is unavailable. Tasks will not be saved across sessions."* | `console.warn` | Initialize empty in-memory list; show persistent banner; app functions in-session only |
+| `STORAGE_PARSE_FAILED` | Storage | F1 (page load) | `JSON.parse` throws on stored value, or parsed value is not an array | *"Previous tasks could not be loaded. Starting fresh."* | `console.warn` | Initialize `taskList = []`; call `localStorage.removeItem("todoapp_tasks")` |
+| `TASK_NOT_FOUND` | Internal | F2, F3 | Toggle or delete event fires for a `taskId` not in `taskList` | None (silent to user) | `console.error` | No state change; no re-render; task list unaffected |
+| `MALFORMED_TASK_SKIPPED` | Internal | F1 (page load) | Parsed task object missing `id`, `text`, or `completed` field | None (silent to user) | `console.warn` | Skip the malformed object; continue with valid tasks |
 
 ---
 
@@ -898,7 +908,7 @@ renderTaskList(getTasks());
 
 ### §localStorage API
 
-**Used by:** F00 (write), F01 (read on load), F02 (write), F03 (write)
+**Used by:** F0 (write), F1 (read on load), F2 (write), F3 (write)
 **Purpose:** Sole persistence layer for the task list across page sessions.
 
 | Property | Value |
@@ -939,24 +949,24 @@ If this returns `false`, the app initializes in in-memory mode and shows the `ST
 
 ### §DOM / Browser Events API
 
-**Used by:** All features (F00–F03)
+**Used by:** All features (F0–F3)
 **Purpose:** Event-driven UI — user interactions (click, keydown) trigger store mutations and re-renders.
 
 | Event | Element | Feature | Handler |
 |-------|---------|---------|---------|
-| `click` | Add button | F00 | Calls `addTask(inputField.value)` |
-| `keydown` (Enter) | Input field | F00 | Calls `addTask(inputField.value)` when `event.key === "Enter"` |
-| `click` | Completion toggle / checkbox | F02 | Calls `toggleTaskComplete(taskId)` |
-| `keydown` (Space/Enter) | Completion toggle | F02 | Calls `toggleTaskComplete(taskId)` when focused via keyboard |
-| `click` | Delete button | F03 | Calls `deleteTask(taskId)` |
-| `keydown` (Enter) | Delete button | F03 | Calls `deleteTask(taskId)` when focused via keyboard |
-| `DOMContentLoaded` | `document` | F01 | Calls `hydrateFromStorage()`, then `renderTaskList(getTasks())` |
+| `click` | Add button | F0 | Calls `addTask(inputField.value)` |
+| `keydown` (Enter) | Input field | F0 | Calls `addTask(inputField.value)` when `event.key === "Enter"` |
+| `click` | Completion toggle / checkbox | F2 | Calls `toggleTaskComplete(taskId)` |
+| `keydown` (Space/Enter) | Completion toggle | F2 | Calls `toggleTaskComplete(taskId)` when focused via keyboard |
+| `click` | Delete button | F3 | Calls `deleteTask(taskId)` |
+| `keydown` (Space/Enter) | Delete button | F3 | Calls `deleteTask(taskId)` when focused via keyboard |
+| `DOMContentLoaded` | `document` | F1 | Calls `hydrateFromStorage()`, then `renderTaskList(getTasks())` |
 
 ---
 
 ### §crypto.randomUUID (Optional)
 
-**Used by:** F00 §ID Generation (optional)
+**Used by:** F0 §ID Generation (optional)
 **Purpose:** Generating cryptographically random task IDs.
 
 | Property | Value |

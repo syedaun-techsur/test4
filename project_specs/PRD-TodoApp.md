@@ -51,7 +51,7 @@ TodoApp solves this by offering a focused, local-state tool where a user can add
 | Layer | Technology / Approach |
 |---|---|
 | Frontend | Web app (HTML/CSS/JS or lightweight framework) |
-| State | Local browser state (localStorage or in-memory) |
+| State | localStorage (primary persistence layer; in-memory fallback when localStorage is unavailable) |
 | Backend | None — v1 is fully client-side |
 | Authentication | None — single-user, no accounts |
 | Deployment | Static hosting (e.g., GitHub Pages, Netlify, or local file) |
@@ -71,7 +71,7 @@ TodoApp solves this by offering a focused, local-state tool where a user can add
 - Text input field for task description
 - Submit via button click or Enter key
 - Input validation: prevent empty task submission
-- Newly added task appears at the top (or bottom) of the task list immediately
+- Newly added task appears at the top of the task list immediately (newest-first order)
 
 **Priority:** P0 (Critical — MVP requirement)
 

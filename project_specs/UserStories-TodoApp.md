@@ -86,7 +86,7 @@ Users can capture a new task by entering a text description and submitting it. T
 
 **Acceptance Criteria:**
 - [ ] If `localStorage.setItem` fails during task creation, the task is still shown in the UI for the current session
-- [ ] A non-blocking notice is displayed: "Your task was added but could not be saved. It will be lost on page refresh."
+- [ ] A non-blocking notice is displayed: "Your changes could not be saved. They will be lost on page refresh."
 - [ ] The notice does not block further interaction with the app
 - [ ] The notice uses a visually distinct style (e.g., amber/yellow warning) and does not use `alert()`
 
@@ -129,7 +129,7 @@ Users can see all their tasks in a single scrollable list that clearly distingui
 **As a** new user or someone who has cleared their list, **I want to** see a helpful message when there are no tasks, **so that** I understand the app is working and know what to do next.
 
 **Acceptance Criteria:**
-- [ ] When the task list is empty, a message such as "No tasks yet. Add one above!" is displayed in the task list area
+- [ ] When the task list is empty, the message "No tasks yet. Add one above!" is displayed in the task list area
 - [ ] The empty state message is not shown when one or more tasks exist
 - [ ] The empty state appears after deleting the last remaining task
 - [ ] The empty state appears on first load when `localStorage` contains no tasks
@@ -228,7 +228,7 @@ Users can toggle any task between complete and incomplete. Completion state is i
 
 **Acceptance Criteria:**
 - [ ] If `localStorage.setItem` fails during a toggle, the in-memory state and UI still update correctly for the session
-- [ ] A non-blocking notice is shown: "Changes could not be saved. They will be lost on page refresh."
+- [ ] A non-blocking notice is shown: "Your changes could not be saved. They will be lost on page refresh."
 - [ ] The app continues to function normally for subsequent interactions
 - [ ] No uncaught errors are thrown
 
@@ -271,7 +271,7 @@ Users can permanently remove any task from the list. Deletion is immediate, requ
 **As a** new user, **I want to** see a friendly empty state message after deleting my last task, **so that** I know the app is working and my list is now empty — not broken.
 
 **Acceptance Criteria:**
-- [ ] Deleting the last task in the list triggers the empty state message (e.g., "No tasks yet. Add one above!")
+- [ ] Deleting the last task in the list triggers the empty state message "No tasks yet. Add one above!"
 - [ ] The app does not crash or render a broken state when the list reaches zero tasks
 - [ ] `localStorage` is updated to an empty array `[]` (or the key contains `"[]"`)
 - [ ] A new task can be added normally from the empty state
@@ -287,7 +287,7 @@ Users can permanently remove any task from the list. Deletion is immediate, requ
 - [ ] The delete button is focusable via Tab key navigation
 - [ ] Pressing Enter or Space when the delete button has focus activates deletion
 - [ ] Keyboard deletion produces the identical result as a click (task removed, list re-renders, localStorage updated)
-- [ ] Focus moves to a logical next element after deletion (e.g., the next task or the input field)
+- [ ] After deletion, focus moves to the next Task Item in the list (the item that was immediately below the deleted one); if the deleted task was the last in the list, focus moves to the input field
 
 **Priority:** P0 | **Feature Ref:** F3
 
@@ -300,7 +300,7 @@ Users can permanently remove any task from the list. Deletion is immediate, requ
 - [ ] After deleting a task and refreshing the page, the deleted task does not reappear
 - [ ] `localStorage` does not contain the deleted task's data after the delete operation
 - [ ] Multiple deletions followed by a page refresh all persist correctly
-- [ ] If `localStorage` write fails during deletion, a non-blocking notice is shown: "Changes could not be saved. The deleted task may reappear on page refresh."
+- [ ] If `localStorage` write fails during deletion, a non-blocking notice is shown: "Your changes could not be saved. They will be lost on page refresh."
 
 **Priority:** P0 | **Feature Ref:** F3
 
