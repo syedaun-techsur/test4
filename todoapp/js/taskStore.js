@@ -129,3 +129,9 @@ export function deleteTask(id) {
 
   // Phase 2: localStorage writes activated here
 }
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+// All exports are declared inline (export keyword) above.
+// API surface: hydrateFromStorage, getTasks, addTask, toggleTaskComplete, deleteTask
+// Error classes: ValidationError, TaskNotFoundError, StorageError
+// ui.js uses instanceof checks against these error classes.
