@@ -3,19 +3,19 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-05-07T18:25:33.096Z"
+last_updated: "2026-05-07T18:28:37.184Z"
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
-  percent: 25
+  completed_plans: 3
+  percent: 75
 ---
 
 # Project State: Basic To-Do App
 
 **Last updated:** 2026-05-07
-**Session:** Completed 01-02-PLAN.md (HTML app shell + CSS stylesheet)
+**Session:** Completed 01-03-PLAN.md (UI module — todoapp/js/ui.js)
 
 ---
 
@@ -32,12 +32,12 @@ progress:
 |-------|-------|
 | Milestone | v1 |
 | Current Phase | 1 — Core Task Loop |
-| Current Plan | Plan 03 (next) |
+| Current Plan | Plan 04 (next) |
 | Phase Status | In progress |
-| Overall Progress | 2/4 plans complete |
+| Overall Progress | 3/4 plans complete |
 
 ```
-Progress: [█████░░░░░] 50%
+Progress: [████████░░] 75%
 ```
 
 ---
@@ -46,7 +46,7 @@ Progress: [█████░░░░░] 50%
 
 | Phase | Status | Plans | Completed |
 |-------|--------|-------|-----------|
-| 1 — Core Task Loop | In progress | 4 | 2 |
+| 1 — Core Task Loop | In progress | 4 | 3 |
 | 2 — Persistence & Accessibility | Not started | TBD | - |
 
 ---
@@ -59,7 +59,7 @@ Progress: [█████░░░░░] 50%
 | Requirements mapped | 6/6 ✓ |
 | Phases created | 2 |
 | Plans created | 4 |
-| Plans complete | 2 |
+| Plans complete | 3 |
 
 ### Execution History
 
@@ -67,6 +67,7 @@ Progress: [█████░░░░░] 50%
 |------|----------|-------|-------|
 | Phase 01-core-task-loop P01 | 2min | 3 tasks | 2 files |
 | Phase 01-core-task-loop P02 | 1min | 2 tasks | 2 files |
+| Phase 01-core-task-loop P03 | 1min | 2 tasks | 1 file |
 
 ## Accumulated Context
 
@@ -82,6 +83,8 @@ Progress: [█████░░░░░] 50%
 | Inline export keyword pattern | Avoids ES module duplicate export errors in taskStore.js |
 | CSS .hidden class pattern | Toggle visibility via classList, not inline styles — clean JS/CSS separation |
 | CSS variables in :root | Consistent theming; primary/danger/muted/warning colors defined once |
+| ui.js textContent-only for task text | XSS prevention — never innerHTML for user-supplied task.text |
+| handleToggle/handleDelete in module scope | Closures referenced by renderTaskList inline listeners — avoids per-render rebind issues |
 
 ### Tech Constraints (from TechArch)
 
@@ -92,7 +95,7 @@ Progress: [█████░░░░░] 50%
 
 ### Todos
 
-- Execute Plan 03 (UI module — todoapp/js/ui.js)
+- Execute Plan 04 (main.js bootstrap — wires ui.js + taskStore.js)
 
 ### Blockers
 
